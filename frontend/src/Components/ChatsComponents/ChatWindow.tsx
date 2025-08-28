@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import type { message, UserInfo } from "../../Interfaces/interface";
 import RedirectArrow from "../RedirectArrow";
-import { setSelectedUser } from "../../Redux/selectedUserSlices";
+import { clearSelectedUser, setSelectedUser } from "../../Redux/selectedUserSlices";
 import LoadingSpinner from "../Loading/LoadingSpinner";
 import { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
@@ -9,11 +9,7 @@ import InputField from "../InputFieldComponent/InputField";
 import MotionComponent from "../MotionComponent";
 import apiRequest from "../../utils/apiRequest";
 import type { RootState } from "../../Redux/Store";
-import { io } from "socket.io-client";
-
-const socket = io(import.meta.env.VITE_BASE_URL, {
-  withCredentials: true,
-});
+import socket from "../../utils/socket";
 
 const ChatWindow = ({
   user,
@@ -30,16 +26,16 @@ const ChatWindow = ({
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const authUser = useSelector((state: RootState) => state.authUser.user);
 
-  useEffect(()=>{
-    socket.emit('join', authUser._id);
+  useEffect(()=>{ 
     
     socket.on('receive-message', (data) => {
+        if(data.userId === user._id)
         setMessages((prevMessages) => [...prevMessages, data]);
     });
     
     return () => {
       socket.off('receive-message');
-    }
+    };
   },[authUser]);
 
   const handleSendMessage = async () => {
@@ -50,7 +46,7 @@ const ChatWindow = ({
         text: newMessage.trim()
       });
       if(response && response.data){
-        socket.emit('send-message', { receiverId: user._id, message: response.data.message });
+        socket.emit('send-message', { receiverId: user._id, message: response.data.message, name: authUser?.name, profilePicture: authUser?.profilePicture });
         setMessages((prevMessages) => [...prevMessages, response.data.message]);
       }
     } catch (error) {
@@ -110,12 +106,12 @@ const ChatWindow = ({
             <div
               key={index}
               className={`flex w-full mb-2 ${
-                msg.userId === authUser._id ? "justify-end" : "justify-start"
+                msg.userId === authUser?._id ? "justify-end" : "justify-start"
               }`}
             >
               <span
                 className={`font-semibold px-3 py-2 rounded-lg max-w-xs ${
-                  msg.userId === authUser._id
+                  msg.userId === authUser?._id
                     ? "bg-teal-700 text-white rounded-tr-none"
                     : "bg-gray-300 text-black rounded-tl-none"
                 }`}

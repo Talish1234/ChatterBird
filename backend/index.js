@@ -50,8 +50,10 @@ io.on("connection", (socket) => {
     console.log(`User ${socket.id} joined room ${userId}`);
   });
 
-  socket.on('send-message', ({ receiverId, message }) => {
+
+  socket.on('send-message', ({ receiverId, message, name, profilePicture }) => {
     socket.to(receiverId).emit('receive-message', message);
+    socket.to(receiverId).emit('receive-notification', { sender: { message, name, profilePicture } });
   });
 
   socket.on("disconnect", () => {
