@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+
+/* Custom keyframes for the reversed bounce animation */
+@keyframes bounce-reverse {
+  0%, 100% {
+    transform: translateY(0%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@layer utilities {
+  .animate-bounce-reverse {
+    animation: bounce-reverse 750ms infinite;
+  }
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@layer base {
+  *::-webkit-scrollbar {
+    display: none;
+  }
+  
+  * {
+    scrollbar-width: none;
+  }
+}
+
+@theme {
+  --font-logo-display: "Noto Serif Khmer", serif;
+  --font-body: "Roboto", sans-serif;
+}

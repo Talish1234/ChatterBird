@@ -1,0 +1,35 @@
+{
+  "name": "chatter-bird-api",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "chatter-bird",
+    "\"chatter-bird\"",
+    "chat-api",
+    "chatter-bird-backend"
+  ],
+  "license": "ISC",
+  "author": "Mohd Talish Ansari",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start":"node index.js",
+    "dev": "nodemon index.js",
+    "test": "nodemon index.js"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.1",
+    "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "google-auth-library": "^10.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.0",
+    "nodemailer": "^7.0.5",
+    "socket.io": "^4.8.1"
+  }
+}
