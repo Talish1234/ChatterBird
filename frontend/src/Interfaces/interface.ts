@@ -5,6 +5,11 @@ export interface signupFormData {
   confirmPassword: string;
 }
 
+export interface notificationStack {
+  userId:string,
+  count:number,
+  createdAt?: string
+}
 export interface message {
   userId: string;
   text: string;

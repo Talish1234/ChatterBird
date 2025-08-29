@@ -1,7 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import type { message, UserInfo } from "../../Interfaces/interface";
 import RedirectArrow from "../RedirectArrow";
-import { clearSelectedUser, setSelectedUser } from "../../Redux/selectedUserSlices";
+import { format } from "timeago.js";
+import { setSelectedUser } from "../../Redux/selectedUserSlices";
 import LoadingSpinner from "../Loading/LoadingSpinner";
 import { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
@@ -24,40 +25,20 @@ const ChatWindow = ({
   const [messages, setMessages] = useState<message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const authUser = useSelector((state: RootState) => state.authUser.user);
 
-  useEffect(()=>{ 
-    
-    socket.on('receive-message', (data) => {
-        if(data.userId === user._id)
-        setMessages((prevMessages) => [...prevMessages, data]);
-    });
-    
-    return () => {
-      socket.off('receive-message');
-    };
-  },[authUser]);
-
-  const handleSendMessage = async () => {
-    if (!chatId || !newMessage.trim()) return;
-    try {
-      const response = await apiRequest.post('/message/createMessage',{
-        chatId: chatId,
-        text: newMessage.trim()
-      });
-      if(response && response.data){
-        socket.emit('send-message', { receiverId: user._id, message: response.data.message, name: authUser?.name, profilePicture: authUser?.profilePicture });
-        setMessages((prevMessages) => [...prevMessages, response.data.message]);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-    setNewMessage("");
-  };
-
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    socket.on("receive-message", (data) => {
+      if (data.userId === user._id) {
+        setMessages((prev) => [...prev, data]);
+      }
+    });
+
+    return () => {
+      socket.off("receive-message");
+    };
+  }, [authUser, user._id]);
 
   useEffect(() => {
     const fetchChat = async () => {
@@ -66,92 +47,129 @@ const ChatWindow = ({
         const response = await apiRequest.post(`/chat/open`, {
           reciverId: user._id,
         });
-        if(response && response.data){
-        setChatId(response.data.chat._id);
-        setMessages(response.data.messages);
-        console.log('chat', response.data);
+        if (response?.data) {
+          setChatId(response.data.chat._id);
+          setMessages(response.data.messages ?? []);
         }
       } catch (error) {
         console.error(error);
       }
       setIsLoading(false);
-    }
+    };
     fetchChat();
-  }, []);
+  }, [user._id]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    if (!chatId || !newMessage.trim()) return;
+    try {
+      const response = await apiRequest.post("/message/createMessage", {
+        chatId,
+        text: newMessage.trim(),
+      });
+
+      if (response?.data) {
+        socket.emit("send-message", {
+          receiverId: user._id,
+          message: response.data.message,
+          name: authUser?.name,
+          profilePicture: authUser?.profilePicture,
+        });
+
+        setMessages((prev) => [...prev, response.data.message]);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    setNewMessage("");
+  };
 
   return (
     <div
-      className={`dark:text-white ${className} flex w-full flex-col justify-between h-full px-5 pb-14 md:pb-2`}
+      className={`dark:text-white ${className} flex w-full flex-col justify-between h-full px-4 pb-16 md:pb-3`}
     >
-      <RedirectArrow clickHandler={() => dispatch(setSelectedUser(null))} />
-
-      <div className="flex items-center px-18 py-3 gap-2">
+      {/* Header */}
+      <div className="flex items-center gap-3 py-3 border-b border-gray-200 dark:border-gray-700">
+        <RedirectArrow clickHandler={() => dispatch(setSelectedUser(null))} />
         <img
           src={user.profilePicture}
           alt={user.name}
-          className="w-12 h-12 rounded-full"
+          className="w-10 h-10 rounded-full object-cover"
         />
-        <div className="flex flex-col justify-center">
+        <div className="flex flex-col">
           <h2 className="text-md font-semibold">{user.name}</h2>
-          <p className="text-xs text-gray-500">{"Active now"}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Active now
+          </p>
         </div>
       </div>
 
-      <div className="overflow-y-auto h-full">
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto py-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600"
+      >
         {isLoading ? (
-          <LoadingSpinner />
+          <div className="flex justify-center items-center h-full">
+            <LoadingSpinner />
+          </div>
         ) : (
-          messages &&
-          messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex w-full mb-2 ${
-                msg.userId === authUser?._id ? "justify-end" : "justify-start"
-              }`}
-            >
-              <span
-                className={`font-semibold px-3 py-2 rounded-lg max-w-xs ${
-                  msg.userId === authUser?._id
-                    ? "bg-teal-700 text-white rounded-tr-none"
-                    : "bg-gray-300 text-black rounded-tl-none"
+          messages.map((msg, index) => {
+            const isOwn = msg.userId === authUser?._id;
+            return (
+              <div
+                key={index}
+                className={`flex w-full ${
+                  isOwn ? "justify-end" : "justify-start"
                 }`}
               >
-                {msg.text}
-              </span>
-            </div>
-          ))
+                <div
+                  className={`px-3 py-2 rounded-lg max-w-xs shadow-sm transition hover:scale-[1.01] ${
+                    isOwn
+                      ? "bg-teal-700 text-white rounded-tr-none"
+                      : "bg-gray-200 dark:bg-gray-600 text-black dark:text-white rounded-tl-none"
+                  }`}
+                >
+                  <span className="block">{msg.text}</span>
+                  <span
+                    className={`text-[10px] ${
+                      isOwn ? "text-gray-300" : "text-gray-500 dark:text-gray-400"
+                    } font-light block mt-0.5`}
+                  >
+                    {format(msg.createdAt)}
+                  </span>
+                </div>
+              </div>
+            );
+          })
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 flex w-full items-center justify-between gap-2 p-2 bg-inherit md:sticky md:bottom-0">
-        {/* Input field */}
+      <div className="fixed bottom-0 left-0 right-0 flex w-full items-center gap-2 p-2 bg-white dark:bg-gray-800 md:sticky md:bottom-0 border-t border-gray-200 dark:border-gray-700">
         <InputField
           value={newMessage}
           onChangeInputField={(e) => setNewMessage(e.target.value)}
           type="text"
           placeholder="Type a message..."
-          className="flex-1 bg-gray-100 dark:bg-gray-600 rounded-lg p-2"
+          className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-teal-600 outline-none"
         />
 
-        {/* Animated button */}
-     
-          {newMessage && ( // 👈 only show button if there's text
-            <MotionComponent
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.5 }}
-              transition={{ type: "spring" }}
-            >
-              <button
-                onClick={handleSendMessage}
-                className="p-3 bg-teal-900 text-white rounded-full"
-              >
-                <IoSend size={20} />
-              </button>
-            </MotionComponent>
-          )}
-    
+        <MotionComponent
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: newMessage ? 1 : 0, scale: newMessage ? 1 : 0.5 }}
+          transition={{ type: "spring", stiffness: 300 }}
+        >
+          <button
+            onClick={handleSendMessage}
+            disabled={!newMessage.trim()}
+            className="p-3 bg-teal-700 hover:bg-teal-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full shadow-md transition"
+          >
+            <IoSend size={18} />
+          </button>
+        </MotionComponent>
       </div>
     </div>
   );

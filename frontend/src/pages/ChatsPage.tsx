@@ -5,10 +5,10 @@ import Navbar from "../Components/Navbar";
 import type { RootState } from "../Redux/Store";
 import Loading from "../Components/Loading/Loading";
 import { useEffect } from "react";
-import { clearSelectedUser } from "../Redux/selectedUserSlices";
 import socket from "../utils/socket";
 import { toast } from "react-toastify";
 import NotificationCard from "../Components/Cards/NotificationCard";
+import { pushNotification } from "../Redux/notificationStackSlice";
 
 const ChatsPage = () => {
   const authUser = useSelector((state: RootState) => state.authUser.user);
@@ -23,6 +23,7 @@ const ChatsPage = () => {
 
   const handleNotification = (notification: any) => {
     if (notification.sender.message.userId !== selectedUser) {
+      dispatch(pushNotification({ userId: notification.sender.message.userId , count: 1}));
       toast.info(
         <NotificationCard
           userId={notification.sender.message.userId}

@@ -12,6 +12,8 @@ const InputField = ({
   className,
   placeholder,
   required = false,
+  ref,
+  onKeyDown
 }: {
   disabled?: boolean;
   label?: string;
@@ -22,6 +24,8 @@ const InputField = ({
   className?: string;
   placeholder?: string;
   required?: boolean;
+  ref?:any;
+  onKeyDown?:any;
 }) => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   return (
@@ -34,6 +38,8 @@ const InputField = ({
         </label>
        <div className="flex justify-center items-center gap-2 relative">
   <input
+    ref={ref}
+    onKeyDown={onKeyDown}
     required={required}
     placeholder={placeholder}
     disabled={disabled}

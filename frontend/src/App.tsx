@@ -9,7 +9,8 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AuthRoute from "./Components/ProtectedRouteComponent/AuthRoute";
 import ChatsPage from "./pages/ChatsPage";
-import Navbar from "./Components/Navbar";
+import Loading from "./Components/Loading/Loading";
+import LoadingSpinner from "./Components/Loading/LoadingSpinner";
 
 const App = () => {
   const [darkmode, setDarkmode] = useState<boolean>(false);
@@ -44,8 +45,8 @@ const App = () => {
               </AuthRoute>
             }
           />
-          <Route path="/explore" element={<Navbar />} />
-          <Route path="*" element={<h1>404 Not Found</h1>} />
+          <Route path="/explore" element={<LoadingSpinner />} />
+          <Route path="*" element={<Loading/ >} />
         </Routes>
       </MotionComponent>
       <ToastContainer
@@ -58,7 +59,7 @@ const App = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme={darkmode ? "dark" : "light"} // matches your theme toggle
+        theme={darkmode ? "dark" : "light"} 
         limit={3}
         stacked
       />

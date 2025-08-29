@@ -44,7 +44,8 @@ app.use('/chat', chatRouter);
 app.use('/message', messageRouter);
 
 io.on("connection", (socket) => {
-
+  console.log("user is connected with id",socket.id);
+  
   socket.on('join', (userId) => {
     socket.join(userId);
     console.log(`User ${socket.id} joined room ${userId}`);

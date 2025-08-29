@@ -1,17 +1,26 @@
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 
-const RedirectArrow = ({ route = "/", clickHandler }: { route?: string; clickHandler?: () => void }) => {
-  const redirect = useNavigate();
+type RedirectArrowProps = {
+  route?: string;
+  clickHandler?: () => void;
+  className?: string;
+};
+
+const RedirectArrow = ({ route = "/", clickHandler ,className}: RedirectArrowProps) => {
+  const navigate = useNavigate();
 
   const handleClick = () => {
-    redirect(route);
+    if (clickHandler) clickHandler();
+    else navigate(route);
   };
 
   return (
     <button
-      onClick={clickHandler ? clickHandler : handleClick}
-      className="absolute top-4 left-4 text-gray-500 hover:text-gray-700 dark:text-gray-200"
+      type="button"
+      onClick={handleClick}
+      aria-label="Go back"
+      className={`text-gray-500 hover:text-gray-700 dark:text-gray-200 ${className}`}
     >
       <IoIosArrowRoundBack className="inline-block mr-1" size={40} />
     </button>

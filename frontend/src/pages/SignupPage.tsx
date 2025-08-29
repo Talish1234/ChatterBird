@@ -15,74 +15,100 @@ const SignupPage = () => {
     confirmPassword: "",
   });
 
+  const [error, setError] = useState<string>("");
+
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      if (signupFormData.password !== signupFormData.confirmPassword) {
-        console.error("Passwords do not match");
-        return;
-      }
+    setError("");
 
-      const response = await apiRequest.post('/email/signup', {
+    if (signupFormData.password !== signupFormData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      const response = await apiRequest.post("/email/signup", {
         name: signupFormData.name,
         email: signupFormData.email,
-        password: signupFormData.password
+        password: signupFormData.password,
       });
 
-      if (response && response.data.success) {
+      if (response?.data.success) {
         redirect("/login");
-      } 
-
+      }
     } catch (error) {
+      setError("Something went wrong. Please try again.");
       console.error("Signup Error:", error);
     }
   };
 
   return (
-     <div className=" dark:bg-gray-800 p-4 h-screen flex items-center justify-center">
-      <RedirectArrow />
-      <form className=" w-full max-w-xs flex flex-col gap-6 dark:text-white" onSubmit={handleSignup}>
-        <h1 className="text-2xl font-bold mb-4 text-center">
+    <div className="dark:bg-gray-800 px-6 sm:px-8 py-6 h-screen flex items-center justify-center">
+      <RedirectArrow className="fixed left-4 top-4"/>
+      <form
+        className="w-full max-w-sm sm:max-w-md flex flex-col gap-6 bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-lg"
+        onSubmit={handleSignup}
+      >
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-center dark:text-white">
           Sign up with Email
         </h1>
-        <p className="text-gray-600 text-center dark:text-gray-100">
+        <p className="text-gray-600 text-center dark:text-gray-300 text-sm sm:text-base">
           Don’t just text—connect. Sign up and start chatting today!
         </p>
+
+        {/* Show error message */}
+        {error && (
+          <div className="bg-red-100 text-red-600 text-sm p-2 rounded-md text-center">
+            {error}
+          </div>
+        )}
+
         <div className="flex flex-col gap-4 w-full">
-            <InputField
-            required={true}
+          <InputField
+            required
             label="Your Name"
-            type="name"
+            type="text"
             value={signupFormData.name}
-            onChangeInputField={(e) => setSignupFormData({ ...signupFormData, name: e.target.value })}
-            className="border-b-3 border-gray-300"
+            onChangeInputField={(e) =>
+              setSignupFormData({ ...signupFormData, name: e.target.value })
+            }
+            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500"
           />
           <InputField
-            required={true}
+            required
             label="Your Email"
             type="email"
             value={signupFormData.email}
-            onChangeInputField={(e) => setSignupFormData({ ...signupFormData, email: e.target.value })}
-            className="border-b-3 border-gray-300"
+            onChangeInputField={(e) =>
+              setSignupFormData({ ...signupFormData, email: e.target.value })
+            }
+            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500"
           />
           <InputField
-            required={true}
+            required
             label="Your Password"
             type="password"
             value={signupFormData.password}
-            onChangeInputField={(e) => setSignupFormData({ ...signupFormData, password: e.target.value })}
-            className="border-b-3 border-gray-300"
+            onChangeInputField={(e) =>
+              setSignupFormData({ ...signupFormData, password: e.target.value })
+            }
+            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500"
           />
           <InputField
-            required={true}
+            required
             label="Confirm Password"
             type="password"
             value={signupFormData.confirmPassword}
-            onChangeInputField={(e) => setSignupFormData({ ...signupFormData, confirmPassword: e.target.value })}
-            className="border-b-3 border-gray-300"
+            onChangeInputField={(e) =>
+              setSignupFormData({
+                ...signupFormData,
+                confirmPassword: e.target.value,
+              })
+            }
+            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500"
           />
-          <div className="text-center py-4">
-            <button className="bg-gray-300 text-gray-500 font-bold py-2 px-4 rounded-lg w-full hover:bg-teal-800 hover:text-white transition-all duration-300 ease-in-out mb-4 dark:hover:bg-teal-600">
+          <div className="text-center py-2">
+            <button className="bg-teal-600 text-white font-bold py-2 px-4 rounded-lg w-full hover:bg-teal-700 transition-all duration-300 ease-in-out">
               Create an account
             </button>
           </div>
