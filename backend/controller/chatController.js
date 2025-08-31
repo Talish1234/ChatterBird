@@ -4,38 +4,102 @@ import mongoose from "mongoose";
 
 export const openChat = async (req, res) => {
   try {
-    let userId = req.userId;
+    let userId = new mongoose.Types.ObjectId(req.userId);
     let { reciverId } = req.body;
 
     if (!userId || !reciverId) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    userId = new mongoose.Types.ObjectId(userId);
     reciverId = new mongoose.Types.ObjectId(reciverId);
+    console.log(reciverId, userId);
+    const participants = [userId, reciverId].sort();
 
-    let chat = await Chat.findOne({
-      participants: { $all: [userId, reciverId] }
-    });
-    
-    arr.sort((a,b)=> a-b);
+    let chat = await Chat.findOne({ participants });
+    console.log(chat);
     if (!chat) {
-      chat = await Chat.create({
-        participants: [userId, reciverId],
-      });
-      return res.status(201).json({ message: "Chat created", chat });
+      chat = await Chat.create({ participants });
+      return res
+        .status(201)
+        .json({ message: "Chat created", chat, messages: [] });
     }
 
     const messages = await Message.find({ chat: chat._id })
       .sort({ createdAt: -1 })
       .limit(50)
-      .select("-__v -chat");
+      .select("-__v -chat -seen");
 
+    await Message.updateMany(
+      { chat: chat._id, userId: reciverId },
+      { $set: { seen: true } }
+    );
     res.status(200).json({
       success: true,
       chat,
-      messages: messages.reverse()
+      messages: messages.reverse(),
     });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const getUnreadCounts = async (req, res) => {
+  try {
+    const userId = new mongoose.Types.ObjectId(req.userId);
+
+    const UnreadCounts = await Chat.aggregate([
+      // Step 1: Match chats where this user is a participant
+      {
+        $match: {
+          participants: userId,
+        },
+      },
+
+      // Step 2: Lookup messages of this chat
+      {
+        $lookup: {
+          from: "messages",
+          localField: "_id",
+          foreignField: "chat",
+          as: "messages",
+        },
+      },
+
+      // Step 3: Unwind messages
+      { $unwind: "$messages" },
+
+      // Step 4: Only unseen messages AND not sent by the current user
+      {
+        $match: {
+          "messages.seen": false,
+          "messages.userId": { $ne: userId },
+        },
+      },
+
+      // Step 5: Group by sender (other participant)
+      {
+        $group: {
+          _id: "$messages.userId",
+          count: { $sum: 1 },
+          lastMessageTime: { $max: "$messages.createdAt" },
+        },
+      },
+
+      // Step 6: Rename fields
+      {
+        $project: {
+          _id: 0,
+          receiverId: "$_id",
+          count: 1,
+          lastMessageTime: 1,
+        },
+      },
+    ]);
+
+    return res.status(200).json({ success: true, UnreadCounts });
   } catch (error) {
     console.error(error);
     return res

@@ -28,6 +28,9 @@ const userSchema = new mongoose.Schema({
         default: 'https://snapynow.com/wp-content/uploads/2024/05/no-dp_16.webp',
         required: true
     },
+    publicId: {
+      type:String  
+    },
     chats: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Chat"

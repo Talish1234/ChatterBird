@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import 'dotenv/config'; // Import dotenv and configure it
-import googleAuthRoute from './routes/googleAuthRoute.js'; // Note the .js extension
+import 'dotenv/config';
+import googleAuthRoute from './routes/googleAuthRoute.js';
 import authRouter from './routes/authRouter.js';
 import userRouter from './routes/userRouter.js';
 import chatRouter from './routes/chatRouter.js';
@@ -48,9 +48,15 @@ io.on("connection", (socket) => {
   
   socket.on('join', (userId) => {
     socket.join(userId);
-    console.log(`User ${socket.id} joined room ${userId}`);
+    socket.data.userId = userId;
+    socket.broadcast.emit('online',userId);
   });
 
+  socket.on('isOnline', (userId) => {
+    const room = io.sockets.adapter.rooms.get(userId);
+    if(room && room.size > 0)
+    socket.emit('online',userId);
+  });
 
   socket.on('send-message', ({ receiverId, message, name, profilePicture }) => {
     socket.to(receiverId).emit('receive-message', message);
@@ -59,6 +65,8 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} disconnected`);
+    const userId = socket.data.userId;
+      io.emit("offline", userId);
   });
 });
 

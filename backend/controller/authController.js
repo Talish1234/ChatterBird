@@ -3,6 +3,7 @@ import User from "../model/userModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail } from "../utils/VerificationEmail.js";
+import { uploadImageByUrl } from "../utils/uploadImageByUrl.js";
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -26,15 +27,17 @@ export const googleSignUpController = async (req, res) => {
     let user = await User.findOne({ email });
     if (!user) {
         const hashPassword = await bcrypt.hash(at_hash, 10);
+        const {profilePicture,publicId} = await uploadImageByUrl(picture);
         user = await User.create({
             email: email,
             name: name,
-            profilePicture: picture,
+            profilePicture,
             isVerified: email_verified,
             password: hashPassword,
+            publicId
       });
     }
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id}, process.env.JWT_SECRET, {
       expiresIn: 1000 * 60 * 60 * 24 * 90,
     });
     
@@ -43,7 +46,7 @@ export const googleSignUpController = async (req, res) => {
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 90,
-    }).status(200).json({ success: true, user: { _id: user._id, email: user.email, name: user.name, profilePicture: user.profilePicture, bio:user.bio } });
+    }).status(200).json({ success: true, user: { _id: user._id, email: user.email, name: user.name, profilePicture: user.profilePicture, bio:user.bio} });
   } catch (err) {
     console.error("Google Auth Error:", err);
     return res.status(400).json({ success: false, error: err.message });
@@ -57,10 +60,13 @@ export const emailSignUpController = async (req, res) => {
     let user = await User.findOne({ email });
     if (!user) {
       const hashPassword = await bcrypt.hash(password, 10);
+      const {profilePicture,publicId} = await uploadImageByUrl(picture);
       user = await User.create({
         name,
         email,
         password: hashPassword,
+        profilePicture,
+        publicId
       });
     }
     if (user.isVerified) {
@@ -105,7 +111,7 @@ export const emailLoginController = async (req, res) => {
             secure: process.env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: 1000 * 60 * 60 * 24 * 90,
-        }).json({ success: true, user: { _id: user._id, email: user.email, name: user.name, profilePicture: user.profilePicture, bio:user.bio } });
+        }).json({ success: true, user: { _id: user._id, email: user.email, name: user.name, profilePicture: user.profilePicture, bio:user.bio} });
 
     } catch (err) {
         console.error("Email Auth Error:", err);

@@ -19,6 +19,14 @@ const chatSchema = new mongoose.Schema({
     }
 })
 
+chatSchema.pre("save", function (next) {
+  this.participants = this.participants.sort();
+  next();
+});
+
+// Unique index so same participants can't create duplicate chat
+chatSchema.index({ participants: 1 });
+
 const Chat = mongoose.model("Chat", chatSchema);
 
 export default Chat;
