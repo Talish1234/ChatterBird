@@ -8,9 +8,9 @@ const Navbar = ({ className }: { className?: string }) => {
   const location = useLocation();
 
   const links: Array<{ path: string; icon: JSX.Element; label: string }> = [
-    { path: "/chats", icon: <LuMessageCircleMore size={28} />, label: "Chats" },
-    { path: "/explore", icon: <MdOutlineExplore size={28} />, label: "Explore" },
-    { path: "/settings", icon: <AiOutlineSetting size={28} />, label: "Settings" },
+    { path: "/user/chats", icon: <LuMessageCircleMore size={28} />, label: "Chats" },
+    { path: "/user/explore", icon: <MdOutlineExplore size={28} />, label: "Explore" },
+    { path: "/user/settings", icon: <AiOutlineSetting size={28} />, label: "Settings" },
   ];
 
   return (

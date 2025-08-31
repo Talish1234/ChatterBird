@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../Redux/Store";
 import apiRequest from "../../utils/apiRequest";
 import LoadingSpinner from "../Loading/LoadingSpinner";
-import { pushNotification } from "../../Redux/notificationStackSlice";
+import { spreadNotification } from "../../Redux/notificationStackSlice";
 
 const LeftChatComponent = ({ className }: { className?: string }) => {
   const dispatch = useDispatch();
@@ -21,20 +21,12 @@ const LeftChatComponent = ({ className }: { className?: string }) => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        
         setIsLoading(true);
         const response = await apiRequest.get("/user");
         const fetchedUsers: UserInfo[] = response.data.users;
+        setUsers(fetchedUsers);
 
-        // Filter out current user
-        const filtered = fetchedUsers.filter((u) => u._id !== authUser?._id);
-        setUsers(filtered);
-
-        // Initialize notification stack if not present
-        filtered.forEach((user) => {
-          if (!notifications.some((n) => n.userId === user._id)) {
-            dispatch(pushNotification({ userId: user._id, count: 0 }));
-          }
-        });
       } catch (error) {
         console.error("Error fetching users:", error);
       } finally {
@@ -44,6 +36,29 @@ const LeftChatComponent = ({ className }: { className?: string }) => {
 
     fetchUsers();
   }, [authUser?._id, dispatch, notifications]);
+  
+useEffect(() => {
+  const fetchNotifications = async () => {
+    try {
+      const unreadCountResponse = await apiRequest.get("/chat/getUnreadCounts");
+      const counts = unreadCountResponse?.data?.UnreadCounts || [];
+
+      const arr: notificationStack[] = counts.map(
+        (notification: { receiverId: string; count: number; lastMessageTime: string }) => ({
+          userId: notification.receiverId,
+          count: notification?.count || 0,
+          createdAt: notification.lastMessageTime,
+        })
+      );
+
+      dispatch(spreadNotification(arr));
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    }
+  };
+
+  if (authUser?._id) fetchNotifications();
+}, [authUser?._id, dispatch]);
 
   return (
     <div className={`flex-col justify-between w-full h-full bg-black px-2 ${className}`}>

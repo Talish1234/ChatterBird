@@ -6,6 +6,9 @@ const notificationStackSlice = createSlice({
   name: "notificationStack",
   initialState,
   reducers: {
+    spreadNotification: (state, action: PayloadAction<notificationStack[]>) => {
+     return action.payload
+    },
     pushNotification: (state, action: PayloadAction<notificationStack>) => {
       if (action.payload) {
         const existingNotification = state.find(
@@ -14,10 +17,10 @@ const notificationStackSlice = createSlice({
         if (existingNotification) {
           existingNotification.count += action.payload.count;
           if (action.payload.count > 0) {
-            existingNotification.createdAt = new Date().toISOString();
+            existingNotification.createdAt = action.payload?.createdAt || new Date().toISOString()
           }
         } else {
-          state.push({ userId: action.payload.userId, count: action.payload.count, createdAt: new Date().toISOString() });
+          state.push({ userId: action.payload.userId, count: action.payload.count, createdAt: action.payload?.createdAt || new Date().toISOString() });
         }
       }
     },
@@ -30,5 +33,5 @@ const notificationStackSlice = createSlice({
   },
 });
 
-export const { pushNotification, popNotification } = notificationStackSlice.actions;
+export const { pushNotification, popNotification, spreadNotification } = notificationStackSlice.actions;
 export const notificationStackReducer = notificationStackSlice.reducer;

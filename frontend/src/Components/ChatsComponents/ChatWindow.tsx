@@ -11,6 +11,7 @@ import MotionComponent from "../MotionComponent";
 import apiRequest from "../../utils/apiRequest";
 import type { RootState } from "../../Redux/Store";
 import socket from "../../utils/socket";
+import { AnimatePresence, motion } from "framer-motion";
 
 const ChatWindow = ({
   user,
@@ -24,9 +25,30 @@ const ChatWindow = ({
   const [chatId, setChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
+  const [isOnline,setIsOnline] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const authUser = useSelector((state: RootState) => state.authUser.user);
+  
+  useEffect(() => {
+
+    socket.on('online', (data) => {
+      if(data === user._id)
+        setIsOnline(true);
+    });
+    
+    socket.emit('isOnline', user._id);
+    
+    socket.on('offline', (data) => {
+        if(data === user._id)
+        setIsOnline(false);
+    })
+
+    return () => {
+      socket.off('online');
+      socket.off('offline');
+    };
+  }, [socket]);
 
   useEffect(() => {
     socket.on("receive-message", (data) => {
@@ -34,7 +56,7 @@ const ChatWindow = ({
         setMessages((prev) => [...prev, data]);
       }
     });
-
+    
     return () => {
       socket.off("receive-message");
     };
@@ -100,10 +122,19 @@ const ChatWindow = ({
           className="w-10 h-10 rounded-full object-cover"
         />
         <div className="flex flex-col">
-          <h2 className="text-md font-semibold">{user.name}</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Active now
-          </p>
+          <h2 className="text-md font-semibold">{user.name}</h2><AnimatePresence>
+  {isOnline && (
+    <motion.p
+      className="text-xs text-gray-500 dark:text-green-600"
+      initial={{ opacity: 0, y: -5 }} // Initial state (invisible, slightly moved up)
+      animate={{ opacity: 1, y: 0 }} // Final state (fully visible)
+      exit={{ opacity: 0, y: -5 }} // Exit state (fades out and moves up)
+      transition={{ duration: 0.5 }} // How long the transition takes
+    >
+      Active now
+    </motion.p>
+  )}
+</AnimatePresence>
         </div>
       </div>
 

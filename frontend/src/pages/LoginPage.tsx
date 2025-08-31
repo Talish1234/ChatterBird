@@ -26,7 +26,7 @@ const LoginPage = () => {
       if (response && response.data.success) {
         console.log("Login Successful:", response.data.user);
         dispatch(login(response.data.user));
-        redirect("/chats");
+        redirect("/user/chats");
       }
     } catch (error) {
       console.error("Login Error:", error);

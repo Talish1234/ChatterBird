@@ -16,7 +16,7 @@ const GoogleButton = () => {
     });
     if (response.data && response.data.success) {
       dispatch(login(response.data.user));
-      redirect('/chats');
+      redirect('/user/chats');
     } else {
       console.error("Error signing up:", response);
     }

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,22 +8,20 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AuthRoute from "./Components/ProtectedRouteComponent/AuthRoute";
 import ChatsPage from "./pages/ChatsPage";
-import Loading from "./Components/Loading/Loading";
 import LoadingSpinner from "./Components/Loading/LoadingSpinner";
+import SettingPage from "./pages/SettingPage";
+import { useSelector } from "react-redux";
+import type { RootState } from "./Redux/Store";
+import UserLayout from "./UserLayout";
 
 const App = () => {
-  const [darkmode, setDarkmode] = useState<boolean>(false);
+  const setting = useSelector((state: RootState) => state.setting.setting);
   const location = useLocation();
   return (
     <div
-      data-theme={darkmode ? "dark" : "light"}
+      data-theme={setting.darkMode ? "dark" : "light"}
       className="relative min-h-screen overflow-x-hidden"
     >
-      <button
-        onClick={() => setDarkmode(!darkmode)}
-        className="fixed top-4 right-4 p-2 bg-gray-900 dark:bg-gray-200 rounded-md w-10 h-10 z-40"
-      />
-
       <MotionComponent
         key={location.pathname}
         initial={{ opacity: 0, x: 20 }}
@@ -37,20 +34,25 @@ const App = () => {
           <Route path="/" element={<WelcomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+
           <Route
-            path="/chats"
+            path="/user"
             element={
               <AuthRoute path="/login">
-                <ChatsPage />
+                <UserLayout />
               </AuthRoute>
             }
-          />
-          <Route path="/explore" element={<LoadingSpinner />} />
-          <Route path="*" element={<Loading/ >} />
+          >
+            <Route path="chats" element={<ChatsPage />} />
+            <Route path="explore" element={<LoadingSpinner />} />
+            <Route path="settings" element={<SettingPage />} />
+          </Route>
+
+          <Route path="*" element={<div>Not Found</div>} />
         </Routes>
       </MotionComponent>
       <ToastContainer
-        position="bottom-right"
+        position="top-right"
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}
@@ -59,7 +61,7 @@ const App = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme={darkmode ? "dark" : "light"} 
+        theme={setting.darkMode ? "dark" : "light"}
         limit={3}
         stacked
       />
