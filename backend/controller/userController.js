@@ -6,6 +6,7 @@ export const getVerifiedUsers = async (req, res) => {
   try {
     const { q } = req.query;
     const userId = req.userId;
+    console.log(userId);
     const users = await User.find({ isVerified: true , _id: { $ne: userId }  }).select("-password -__v -isVerified -publicId").limit(100);
 
     if (!q) return res.status(200).json({success:true, users});

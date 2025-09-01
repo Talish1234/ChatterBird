@@ -11,7 +11,9 @@ import MotionComponent from "../MotionComponent";
 import apiRequest from "../../utils/apiRequest";
 import type { RootState } from "../../Redux/Store";
 import socket from "../../utils/socket";
+import { MdCall } from "react-icons/md";
 import { AnimatePresence, motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const ChatWindow = ({
   user,
@@ -25,28 +27,25 @@ const ChatWindow = ({
   const [chatId, setChatId] = useState<string | null>(null);
   const [messages, setMessages] = useState<message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
-  const [isOnline,setIsOnline] = useState<boolean>(false);
+  const [isOnline, setIsOnline] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const authUser = useSelector((state: RootState) => state.authUser.user);
-  
-  useEffect(() => {
 
-    socket.on('online', (data) => {
-      if(data === user._id)
-        setIsOnline(true);
+  useEffect(() => {
+    socket.on("online", (data) => {
+      if (data === user._id) setIsOnline(true);
     });
-    
-    socket.emit('isOnline', user._id);
-    
-    socket.on('offline', (data) => {
-        if(data === user._id)
-        setIsOnline(false);
-    })
+
+    socket.emit("isOnline", user._id);
+
+    socket.on("offline", (data) => {
+      if (data === user._id) setIsOnline(false);
+    });
 
     return () => {
-      socket.off('online');
-      socket.off('offline');
+      socket.off("online");
+      socket.off("offline");
     };
   }, [socket]);
 
@@ -56,12 +55,17 @@ const ChatWindow = ({
         setMessages((prev) => [...prev, data]);
       }
     });
-    
+
     return () => {
       socket.off("receive-message");
     };
   }, [authUser, user._id]);
 
+  useEffect(() => {
+    return () => {
+      dispatch(setSelectedUser(null));
+    };
+  }, []);
   useEffect(() => {
     const fetchChat = async () => {
       setIsLoading(true);
@@ -122,20 +126,24 @@ const ChatWindow = ({
           className="w-10 h-10 rounded-full object-cover"
         />
         <div className="flex flex-col">
-          <h2 className="text-md font-semibold">{user.name}</h2><AnimatePresence>
-  {isOnline && (
-    <motion.p
-      className="text-xs text-gray-500 dark:text-green-600"
-      initial={{ opacity: 0, y: -5 }} // Initial state (invisible, slightly moved up)
-      animate={{ opacity: 1, y: 0 }} // Final state (fully visible)
-      exit={{ opacity: 0, y: -5 }} // Exit state (fades out and moves up)
-      transition={{ duration: 0.5 }} // How long the transition takes
-    >
-      Active now
-    </motion.p>
-  )}
-</AnimatePresence>
+          <h2 className="text-md font-semibold">{user.name}</h2>
+          <AnimatePresence>
+            {isOnline && (
+              <motion.p
+                className="text-xs text-gray-500 dark:text-green-600"
+                initial={{ opacity: 0, y: -5 }} // Initial state (invisible, slightly moved up)
+                animate={{ opacity: 1, y: 0 }} // Final state (fully visible)
+                exit={{ opacity: 0, y: -5 }} // Exit state (fades out and moves up)
+                transition={{ duration: 0.5 }} // How long the transition takes
+              >
+                Active now
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
+        <Link to={`/user/call/${user._id}?call-type=outgoing`} className="ml-auto" state={{remoteUser:user}}>
+          <MdCall className="text-lg" size={24} />
+        </Link>
       </div>
 
       <div
@@ -166,7 +174,9 @@ const ChatWindow = ({
                   <span className="block">{msg.text}</span>
                   <span
                     className={`text-[10px] ${
-                      isOwn ? "text-gray-300" : "text-gray-500 dark:text-gray-400"
+                      isOwn
+                        ? "text-gray-300"
+                        : "text-gray-500 dark:text-gray-400"
                     } font-light block mt-0.5`}
                   >
                     {format(msg.createdAt)}

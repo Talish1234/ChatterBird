@@ -51,7 +51,29 @@ io.on("connection", (socket) => {
     socket.data.userId = userId;
     socket.broadcast.emit('online',userId);
   });
+   //** test logic* */
+  socket.on("calling", ({ to,  from}) => {
+    console.log(to , socket.id);
+    io.to(to).emit("calling-notification", { from });
+  })
+  //incomming-call
+  socket.on('start-connecting', ({to}) => {
+    socket.to(to).emit('start-connecting',{from:socket.id});
+  });
+  socket.on('call-connected', ({to , offer}) => {
+  io.to(to).emit('incomming-call', {from:socket.id,offer});
+  })
 
+  socket.on('call-accepted', ({to, ans}) => {
+    io.to(to).emit('call-accepted',{from:socket.id,ans})
+  })
+
+   socket.on("ice-candidate", ({ to, candidate }) => {
+    console.log(`ICE candidate from ${socket.id} to ${to}`);
+    io.to(to).emit("ice-candidate", { from: socket.id, candidate });
+  });
+   /*close test logic*/
+   
   socket.on('isOnline', (userId) => {
     const room = io.sockets.adapter.rooms.get(userId);
     if(room && room.size > 0)
@@ -62,7 +84,10 @@ io.on("connection", (socket) => {
     socket.to(receiverId).emit('receive-message', message);
     socket.to(receiverId).emit('receive-notification', { sender: { message, name, profilePicture } });
   });
-
+    socket.on("call-ended", ({ to }) => {
+    console.log(`User ${socket.id} ended call with ${to}`);
+    io.to(to).emit("call-ended");
+  });
   socket.on("disconnect", () => {
     console.log(`User ${socket.id} disconnected`);
     const userId = socket.data.userId;

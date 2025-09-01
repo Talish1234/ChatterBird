@@ -7,6 +7,7 @@ import socket from "./utils/socket";
 import { pushNotification } from "./Redux/notificationStackSlice";
 import { toast } from "react-toastify";
 import NotificationsCard from "./Components/Cards/NotificationCard";
+import NotificationsCallCard from "./Components/Cards/NotificationsCallCard";
 
 const UserLayout = () => {
   const selectedUser = useSelector(
@@ -33,7 +34,7 @@ const UserLayout = () => {
           })
         );
         if (setting.notification)
-          toast.info(
+          toast(
             <NotificationsCard
               userId={notification.sender.message.userId}
               profilePicture={notification.sender.profilePicture}
@@ -44,10 +45,25 @@ const UserLayout = () => {
       }
     };
 
-    socket.on("receive-notification", handleNotification);
+       
+     const handleCallNotification = ({from}:any) => {
+      
+     if(setting.notification)
+      toast(
+        <NotificationsCallCard
+          userId={from._id}
+          profilePicture={from.profilePicture}
+          name={from.name}
+          text="Incoming call"
+        />,{ autoClose: 1000*30, hideProgressBar: true, }
+      );
+    }
 
+    socket.on("receive-notification", handleNotification);
+    socket.on('calling-notification', handleCallNotification);
     return () => {
       socket.off("receive-notification", handleNotification);
+      socket.off('calling-notification', handleCallNotification);
     };
   }, [selectedUser, authUser?._id, setting.notification]);
 

@@ -8,11 +8,11 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AuthRoute from "./Components/ProtectedRouteComponent/AuthRoute";
 import ChatsPage from "./pages/ChatsPage";
-import LoadingSpinner from "./Components/Loading/LoadingSpinner";
 import SettingPage from "./pages/SettingPage";
 import { useSelector } from "react-redux";
 import type { RootState } from "./Redux/Store";
 import UserLayout from "./UserLayout";
+import CallPage from "./pages/CallPage";
 
 const App = () => {
   const setting = useSelector((state: RootState) => state.setting.setting);
@@ -44,11 +44,12 @@ const App = () => {
             }
           >
             <Route path="chats" element={<ChatsPage />} />
-            <Route path="explore" element={<LoadingSpinner />} />
+            <Route path="explore" element={<h1 className="text-center">Comming Soon</h1>} />
             <Route path="settings" element={<SettingPage />} />
+            <Route path="call/:remoteUserId" element={<CallPage />} />
           </Route>
 
-          <Route path="*" element={<div>Not Found</div>} />
+          <Route path="*" element={<h1 className="text-center">{"Page Not Found :("}</h1>} />
         </Routes>
       </MotionComponent>
       <ToastContainer
