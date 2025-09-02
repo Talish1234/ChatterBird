@@ -34,8 +34,8 @@ app.use(cookieParser());
 
 app.use(express.json());
 
-app.get('/', authMiddleware, (req, res) => {
-    res.send("User route");
+app.get('/', (req, res) => {
+    res.send("App is working..");
 });
 app.use('/google', googleAuthRoute);
 app.use('/email', authRouter);
