@@ -6,9 +6,9 @@ import authRouter from './routes/authRouter.js';
 import userRouter from './routes/userRouter.js';
 import chatRouter from './routes/chatRouter.js';
 import messageRouter from './routes/messageRouter.js';
+import callLogRoute from './routes/callLogRoute.js';
 import connectDB from './config/db.js';
 import cookieParser from 'cookie-parser';
-import { authMiddleware } from './middleware/authMiddleware.js';
 import { createServer } from "http"; 
 import { Server } from "socket.io";
 
@@ -42,6 +42,7 @@ app.use('/email', authRouter);
 app.use('/user', userRouter);
 app.use('/chat', chatRouter);
 app.use('/message', messageRouter);
+app.use('/call', callLogRoute);
 
 io.on("connection", (socket) => {
   console.log("user is connected with id",socket.id);
@@ -52,9 +53,9 @@ io.on("connection", (socket) => {
     socket.broadcast.emit('online',userId);
   });
    //** test logic* */
-  socket.on("calling", ({ to,  from}) => {
-    console.log(to , socket.id);
-    io.to(to).emit("calling-notification", { from });
+  socket.on("calling", ({ to,  from, callId}) => {
+    console.log("this is log id:", callId);
+    io.to(to).emit("calling-notification", { from, callId });
   })
   //incomming-call
   socket.on('start-connecting', ({to}) => {

@@ -12,6 +12,7 @@ import {
 import { MdCallEnd } from "react-icons/md";
 import { CiVideoOn } from "react-icons/ci";
 import { IoMicOutline } from "react-icons/io5";
+import apiRequest from "../utils/apiRequest";
 
 const CallPage = () => {
   const redirect = useNavigate();
@@ -28,6 +29,11 @@ const CallPage = () => {
 
   // Call initiation (caller side)
   const handleCall = useCallback(async () => {
+    try {
+    const response = await apiRequest.post('/call/create', {
+      receiverId: remoteUserId
+      });
+      
     const stream = await navigator.mediaDevices.getUserMedia({
       video: true,
       audio: true,
@@ -40,7 +46,10 @@ const CallPage = () => {
       peer.peer.addTrack(track, stream);
     });
 
-    socket.emit("calling", { to: remoteUserId, from: authUser });
+    socket.emit("calling", { to: remoteUserId, from: authUser, callId:response.data.log._id });
+  }catch(error) {
+    redirect('user/chats');
+  }
   }, [remoteUserId]);
 
   // Incoming call (callee side)
@@ -212,16 +221,19 @@ const CallPage = () => {
     };
   }, [authStream, remoteSocketId]);
   // test logic
+ 
 
   useEffect(() => {
-    if (callType != "incoming") handleCall();
+    if (callType != "incoming") { 
+      
+      handleCall();
+    }
     else {
-      console.log(remoteUserId);
       socket.emit("start-connecting", { to: remoteUserId });
     }
     console.log(callType);
   }, []);
-  // Socket listeners
+
   const handleStartConnection = async ({ from }: { from: string }) => {
     const offer = await peer.getOffer();
     socket.emit("call-connected", { to: from, offer });
@@ -268,7 +280,7 @@ const CallPage = () => {
             autoPlay
             playsInline
             muted
-            className="w-20 aspect-[9/16] md:aspect-video md:w-60 rounded-lg border border-amber-50 object-cover absolute bottom-2 right-2 md:bottom-8 md:right-8"
+            className="w-20 aspect-[9/16]  md:aspect-video md:w-60 rounded-lg border border-amber-50 object-cover absolute bottom-16 right-2 md:bottom-8 md:right-8"
             ref={(videoEl) => {
               if (videoEl && authStream) {
                 videoEl.srcObject = authStream;

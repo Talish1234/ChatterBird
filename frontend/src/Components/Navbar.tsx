@@ -1,7 +1,7 @@
 import type { JSX } from "react";
 import { AiOutlineSetting } from "react-icons/ai";
+import { IoSwapHorizontal } from "react-icons/io5";
 import { LuMessageCircleMore } from "react-icons/lu";
-import { MdOutlineExplore } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 
 const Navbar = ({ className }: { className?: string }) => {
@@ -9,7 +9,7 @@ const Navbar = ({ className }: { className?: string }) => {
 
   const links: Array<{ path: string; icon: JSX.Element; label: string }> = [
     { path: "/user/chats", icon: <LuMessageCircleMore size={28} />, label: "Chats" },
-    { path: "/user/explore", icon: <MdOutlineExplore size={28} />, label: "Explore" },
+    { path: "/user/logs", icon: <IoSwapHorizontal size={28} />, label: "Explore" },
     { path: "/user/settings", icon: <AiOutlineSetting size={28} />, label: "Settings" },
   ];
 

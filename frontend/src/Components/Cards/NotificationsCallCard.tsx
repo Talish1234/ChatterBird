@@ -1,7 +1,9 @@
 import { IoCall, IoCallSharp } from "react-icons/io5";
 import socket from "../../utils/socket";
 
-import { useNavigate, Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import apiRequest from "../../utils/apiRequest";
 
 ;
 
@@ -10,6 +12,7 @@ interface IncomingCallProps {
   name: string;
   text: string;
   userId: string;
+  callId: string;
 }
 
 function NotificationsCallCard({
@@ -17,10 +20,41 @@ function NotificationsCallCard({
   name,
   text,
   userId,
+  callId
 }: IncomingCallProps) {
-  const onEndCall = () => {
+  const redirect = useNavigate();
+  const location = useLocation();
+
+  const queryParams = new URLSearchParams(location.search);
+  const callType = queryParams.get("call-type");
+  
+  const onEndCall = async () => {
+    const log = await apiRequest.put(`/call/${callId}`, {
+      type:'rejected'
+    });
+    
+    console.log(log.data.log);
+    
     socket.emit('call-ended',{to:userId});
   }
+  
+  const onAcceptCall = async () => {
+    console.log(callType);
+    if(callType == 'incoming'){
+      
+     toast.error(`You're already in a call`)
+     socket.emit('call-ended',{to:userId});
+    }
+    else {
+      console.log(callId,"call Id");
+      const log = await apiRequest.put(`/call/${callId}`, {
+      type:'incoming'
+    })
+    console.log(log.data.log);
+    redirect(`/user/call/${userId}?call-type=incoming`,{state:{ remoteUser: { profilePicture, name, text } }});
+    }
+  }
+
   return (
     <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-900">
       {/* Profile */}
@@ -37,13 +71,11 @@ function NotificationsCallCard({
 
         {/* Buttons */}
         <div className="flex gap-3 mt-2">
-          <Link
-            to={`/user/call/${userId}?call-type=incoming`}
-            state={{ remoteUser: { profilePicture, name, text } }}
+          <button onClick={onAcceptCall}
             className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl shadow-md transition"
           >
             <IoCall size={24}/> 
-          </Link>
+          </button>
 
           <button
             onClick={onEndCall}

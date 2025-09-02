@@ -46,7 +46,7 @@ const UserLayout = () => {
     };
 
        
-     const handleCallNotification = ({from}:any) => {
+     const handleCallNotification = ({from,callId}:any) => {
       
      if(setting.notification)
       toast(
@@ -54,6 +54,7 @@ const UserLayout = () => {
           userId={from._id}
           profilePicture={from.profilePicture}
           name={from.name}
+          callId={callId}
           text="Incoming call"
         />,{ autoClose: 1000*30, hideProgressBar: true, }
       );

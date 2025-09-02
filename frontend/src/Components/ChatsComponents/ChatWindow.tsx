@@ -71,7 +71,7 @@ const ChatWindow = ({
       setIsLoading(true);
       try {
         const response = await apiRequest.post(`/chat/open`, {
-          reciverId: user._id,
+          receiverId: user._id,
         });
         if (response?.data) {
           setChatId(response.data.chat._id);

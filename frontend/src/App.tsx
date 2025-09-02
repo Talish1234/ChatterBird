@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "./Redux/Store";
 import UserLayout from "./UserLayout";
 import CallPage from "./pages/CallPage";
+import CallLogPage from "./pages/CallLogPage";
 
 const App = () => {
   const setting = useSelector((state: RootState) => state.setting.setting);
@@ -44,7 +45,7 @@ const App = () => {
             }
           >
             <Route path="chats" element={<ChatsPage />} />
-            <Route path="explore" element={<h1 className="text-center">Comming Soon</h1>} />
+            <Route path="logs" element={<CallLogPage />} />
             <Route path="settings" element={<SettingPage />} />
             <Route path="call/:remoteUserId" element={<CallPage />} />
           </Route>

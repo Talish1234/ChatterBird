@@ -5,15 +5,15 @@ import mongoose from "mongoose";
 export const openChat = async (req, res) => {
   try {
     let userId = new mongoose.Types.ObjectId(req.userId);
-    let { reciverId } = req.body;
+    let { receiverId } = req.body;
 
-    if (!userId || !reciverId) {
+    if (!userId || !receiverId) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    reciverId = new mongoose.Types.ObjectId(reciverId);
-    console.log(reciverId, userId);
-    const participants = [userId, reciverId].sort();
+    receiverId = new mongoose.Types.ObjectId(receiverId);
+    console.log(receiverId, userId);
+    const participants = [userId, receiverId].sort();
 
     let chat = await Chat.findOne({ participants });
     console.log(chat);
@@ -30,7 +30,7 @@ export const openChat = async (req, res) => {
       .select("-__v -chat -seen");
 
     await Message.updateMany(
-      { chat: chat._id, userId: reciverId },
+      { chat: chat._id, userId: receiverId },
       { $set: { seen: true } }
     );
     res.status(200).json({
