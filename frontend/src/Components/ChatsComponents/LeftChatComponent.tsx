@@ -35,7 +35,7 @@ const LeftChatComponent = ({ className }: { className?: string }) => {
     };
 
     fetchUsers();
-  }, [authUser?._id, dispatch, notifications]);
+  }, [authUser?._id, dispatch]);
   
 useEffect(() => {
   const fetchNotifications = async () => {
