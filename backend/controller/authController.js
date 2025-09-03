@@ -45,7 +45,7 @@ export const googleSignUpController = async (req, res) => {
     });
     
     return res.cookie("chatter-token", token, {
-        //sameSite: "None",
+        sameSite: "None",
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 90,
@@ -113,7 +113,7 @@ export const emailLoginController = async (req, res) => {
         });
 
         return res.status(200).cookie("chatter-token", token, {
-            //sameSite: "None",
+            sameSite: "None",
             secure: process.env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: 1000 * 60 * 60 * 24 * 90,

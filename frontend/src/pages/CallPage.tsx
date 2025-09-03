@@ -30,26 +30,30 @@ const CallPage = () => {
   // Call initiation (caller side)
   const handleCall = useCallback(async () => {
     try {
-    const response = await apiRequest.post('/call/create', {
-      receiverId: remoteUserId
+      const response = await apiRequest.post("/call/create", {
+        receiverId: remoteUserId,
       });
-      
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true,
-    });
 
-    setAuthStream(stream);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
 
-    // Add tracks to fresh peer
-    stream.getTracks().forEach((track) => {
-      peer.peer.addTrack(track, stream);
-    });
+      setAuthStream(stream);
 
-    socket.emit("calling", { to: remoteUserId, from: authUser, callId:response.data.log._id });
-  }catch(error) {
-    redirect('user/chats');
-  }
+      // Add tracks to fresh peer
+      stream.getTracks().forEach((track) => {
+        peer.peer.addTrack(track, stream);
+      });
+
+      socket.emit("calling", {
+        to: remoteUserId,
+        from: authUser,
+        callId: response.data.log._id,
+      });
+    } catch (error) {
+      redirect("user/chats");
+    }
   }, [remoteUserId]);
 
   // Incoming call (callee side)
@@ -159,14 +163,16 @@ const CallPage = () => {
 
     // fresh peer
     peer.peer = new RTCPeerConnection({
-      iceServers:[  {
-    urls: 'turn:openrelay.metered.ca:80',
-    username: 'openrelayproject',
-    credential: 'openrelayproject'
-  },
-  {
-    urls: 'stun:openrelay.metered.ca:80'
-  }],
+      iceServers: [
+        {
+          urls: "turn:openrelay.metered.ca:80",
+          username: "openrelayproject",
+          credential: "openrelayproject",
+        },
+        {
+          urls: "stun:openrelay.metered.ca:80",
+        },
+      ],
     });
 
     peer.peer.ontrack = (ev) => {
@@ -201,14 +207,16 @@ const CallPage = () => {
       peer.peer.close();
 
       peer.peer = new RTCPeerConnection({
-        iceServers: [ {
-    urls: 'turn:openrelay.metered.ca:80',
-    username: 'openrelayproject',
-    credential: 'openrelayproject'
-  },
-  {
-    urls: 'stun:openrelay.metered.ca:80'
-  }],
+        iceServers: [
+          {
+            urls: "turn:openrelay.metered.ca:80",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+          },
+          {
+            urls: "stun:openrelay.metered.ca:80",
+          },
+        ],
       });
 
       peer.peer.ontrack = (ev) => {
@@ -235,14 +243,11 @@ const CallPage = () => {
     };
   }, [authStream, remoteSocketId]);
   // test logic
- 
 
   useEffect(() => {
-    if (callType != "incoming") { 
-      
+    if (callType != "incoming") {
       handleCall();
-    }
-    else {
+    } else {
       socket.emit("start-connecting", { to: remoteUserId });
     }
     console.log(callType);
