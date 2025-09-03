@@ -159,7 +159,14 @@ const CallPage = () => {
 
     // fresh peer
     peer.peer = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      iceServers:[  {
+    urls: 'turn:openrelay.metered.ca:80',
+    username: 'openrelayproject',
+    credential: 'openrelayproject'
+  },
+  {
+    urls: 'stun:openrelay.metered.ca:80'
+  }],
     });
 
     peer.peer.ontrack = (ev) => {
@@ -194,7 +201,14 @@ const CallPage = () => {
       peer.peer.close();
 
       peer.peer = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        iceServers: [ {
+    urls: 'turn:openrelay.metered.ca:80',
+    username: 'openrelayproject',
+    credential: 'openrelayproject'
+  },
+  {
+    urls: 'stun:openrelay.metered.ca:80'
+  }],
       });
 
       peer.peer.ontrack = (ev) => {

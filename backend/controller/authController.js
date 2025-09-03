@@ -4,12 +4,15 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail } from "../utils/VerificationEmail.js";
 import { uploadImageByUrl } from "../utils/uploadImageByUrl.js";
+import { gethtmlVerification } from "../utils/gethtmlVerification.js";
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   process.env.BASE_URL
 );
+
+
 
 export const googleSignUpController = async (req, res) => {
   try {
@@ -42,7 +45,7 @@ export const googleSignUpController = async (req, res) => {
     });
     
     return res.cookie("chatter-token", token, {
-        sameSite: "None",
+        //sameSite: "None",
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 90,
@@ -60,7 +63,7 @@ export const emailSignUpController = async (req, res) => {
     let user = await User.findOne({ email });
     if (!user) {
       const hashPassword = await bcrypt.hash(password, 10);
-      const {profilePicture,publicId} = await uploadImageByUrl(picture);
+      const {profilePicture,publicId} = await uploadImageByUrl('https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png');
       user = await User.create({
         name,
         email,
@@ -76,7 +79,10 @@ export const emailSignUpController = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: 1000 * 60 * 60 * 24 * 7,
     });
-    await sendVerificationEmail(email, token, req);
+     
+    const html = gethtmlVerification(req,token);
+
+    await sendVerificationEmail(email, html, "Action Required: Verify Your Email Address for Chatterbird");
     return res.status(200).json({ success: true, user: { _id: user._id , email: user.email, name: user.name, profilePicture: user.profilePicture, bio:user.bio } });
   } catch (err) {
     console.error("Email Auth Error:", err);
@@ -107,7 +113,7 @@ export const emailLoginController = async (req, res) => {
         });
 
         return res.status(200).cookie("chatter-token", token, {
-            sameSite: "None",
+            //sameSite: "None",
             secure: process.env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: 1000 * 60 * 60 * 24 * 90,
@@ -143,3 +149,35 @@ export const emailVerificationController = async (req, res) => {
     return res.status(400).send('<div style="text-align: center;"><h1 style="color: red; ">Email verification failed</h1></div>');
   }
 };
+
+export const forgetPasswordController = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({email:email}).select("_id email")
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const token = jwt.sign({user}, process.env.JWT_SECRET);
+     const html = gethtmlForgetPassword(token);
+        await sendVerificationEmail(email, html, "Action Required: Reset your Password for Chatterbird");
+        res.json({message:'password is sended'});
+
+    } catch (err) {
+    console.error("Email Verification Error:", err);
+    return res.status(400).json({success:false, message:err.message});
+  }
+};
+
+export const ResetPassword = async (req,res) => {
+  try {
+    const {token,password} = req.body;
+    const user = jwt.verify(token,process.env.JWT_SECRET);
+    const authUser = await User.findById(user.user._id);
+    const hashPassword = await  bcrypt.hash(password, 10);
+    await User.findByIdAndUpdate(authUser._id,{password:hashPassword});
+    res.json({success:true});
+  } catch (error) {
+    res.status(500).json({success:false, message:error.message});
+  }
+}

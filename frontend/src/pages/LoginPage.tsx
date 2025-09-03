@@ -6,13 +6,28 @@ import GoogleButton from "../Components/Button/GoogleButton";
 import apiRequest from "../utils/apiRequest";
 import { useDispatch } from "react-redux";
 import { login } from "../Redux/authSlice";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const redirect = useNavigate();
   const dispatch = useDispatch();
-
+  const handleForgotClick = async () => {
+                  try {
+                    if(!email){
+                      toast.warning('Provide email',{autoClose:2000})
+                      return;
+                    }
+                      await apiRequest.post('/email/forgot-password', {
+                    email:email
+                  })
+                  toast.success('Email sent successfully!')
+                  } catch (error) {
+                  toast.error('Invalid Email');
+                  }
+                  
+                }
   const handleSubmitLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -29,7 +44,7 @@ const LoginPage = () => {
         redirect("/user/chats");
       }
     } catch (error) {
-      console.error("Login Error:", error);
+      toast.error('Invalid Email or Password');
     }
   };
 
@@ -40,7 +55,7 @@ const LoginPage = () => {
       <div className="w-full max-w-sm sm:max-w-md md:max-w-lg flex flex-col gap-6 p-6 sm:p-8 rounded-2xl shadow-md bg-white dark:bg-gray-800 dark:text-white">
         {/* Title */}
         <h1 className="text-2xl sm:text-3xl font-bold text-center">
-          Log in to Chatbox
+          Log in to Chatter Bird
         </h1>
         <p className="text-gray-600 dark:text-gray-300 text-center text-sm sm:text-base">
           Welcome back! Sign in using your social account or email to continue.
@@ -82,14 +97,16 @@ const LoginPage = () => {
               <button className="bg-teal-700 text-white font-semibold py-2.5 px-4 rounded-lg w-full hover:bg-teal-800 dark:hover:bg-teal-600 transition-all duration-300 ease-in-out">
                 Log in
               </button>
-              <Link
-                to="/forgetpassword"
+           
+            </div>
+          </form>
+             <button
+                
+                onClick={handleForgotClick}
                 className="text-teal-700 text-sm hover:underline dark:text-teal-500"
               >
                 Forgot password?
-              </Link>
-            </div>
-          </form>
+              </button>
         </div>
       </div>
     </div>
