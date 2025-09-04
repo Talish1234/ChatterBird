@@ -78,7 +78,6 @@ const ChatWindow = ({
           setMessages(response.data.messages ?? []);
         }
       } catch (error) {
-        console.error(error);
       }
       setIsLoading(false);
     };
@@ -108,7 +107,6 @@ const ChatWindow = ({
         setMessages((prev) => [...prev, response.data.message]);
       }
     } catch (error) {
-      console.error(error);
     }
     setNewMessage("");
   };

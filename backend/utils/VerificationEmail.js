@@ -16,8 +16,6 @@ const sendVerificationEmail = async (to, html, subject) => {
     subject: subject,
     html
   });
-
-  console.log("Verification email sent:", info.messageId);
 }
 
 export { sendVerificationEmail };

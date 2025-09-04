@@ -3,6 +3,7 @@ import InputField from "../Components/InputFieldComponent/InputField";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import RedirectArrow from "../Components/RedirectArrow";
 import apiRequest from "../utils/apiRequest";
+import { toast } from "react-toastify";
 
 const ForgotPasswordPage = () => {
   const [searchParam] = useSearchParams();
@@ -21,10 +22,11 @@ const ForgotPasswordPage = () => {
       });
 
       if (response && response.data) {
+        toast.success('Password reset successfully')
         redirect("/login");
       }
     } catch (error) {
-      console.error("Login Error:", error);
+      toast.error("Invalid token");
     }
   };
 

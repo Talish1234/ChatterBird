@@ -38,13 +38,12 @@ const SignupPage = () => {
       }
     } catch (error) {
       setError("Something went wrong. Please try again.");
-      console.error("Signup Error:", error);
     }
   };
 
   return (
     <div className="dark:bg-gray-800 px-6 sm:px-8 py-6 h-screen flex items-center justify-center">
-      <RedirectArrow className="fixed left-4 top-4"/>
+      <RedirectArrow className="fixed left-4 top-4" />
       <form
         className="w-full max-w-sm sm:max-w-md flex flex-col gap-6 bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-2xl shadow-lg"
         onSubmit={handleSignup}

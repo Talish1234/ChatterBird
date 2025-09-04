@@ -45,7 +45,6 @@ app.use('/message', messageRouter);
 app.use('/call', callLogRoute);
 
 io.on("connection", (socket) => {
-  console.log("user is connected with id",socket.id);
   
   socket.on('join', (userId) => {
     socket.join(userId);
@@ -54,7 +53,6 @@ io.on("connection", (socket) => {
   });
    //** test logic* */
   socket.on("calling", ({ to,  from, callId}) => {
-    console.log("this is log id:", callId);
     io.to(to).emit("calling-notification", { from, callId });
   })
   //incomming-call
@@ -70,7 +68,6 @@ io.on("connection", (socket) => {
   })
 
    socket.on("ice-candidate", ({ to, candidate }) => {
-    console.log(`ICE candidate from ${socket.id} to ${to}`);
     io.to(to).emit("ice-candidate", { from: socket.id, candidate });
   });
    /*close test logic*/
@@ -86,11 +83,9 @@ io.on("connection", (socket) => {
     socket.to(receiverId).emit('receive-notification', { sender: { message, name, profilePicture } });
   });
     socket.on("call-ended", ({ to }) => {
-    console.log(`User ${socket.id} ended call with ${to}`);
     io.to(to).emit("call-ended");
   });
   socket.on("disconnect", () => {
-    console.log(`User ${socket.id} disconnected`);
     const userId = socket.data.userId;
       io.emit("offline", userId);
   });

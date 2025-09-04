@@ -14,20 +14,19 @@ const LoginPage = () => {
   const redirect = useNavigate();
   const dispatch = useDispatch();
   const handleForgotClick = async () => {
-                  try {
-                    if(!email){
-                      toast.warning('Provide email',{autoClose:2000})
-                      return;
-                    }
-                      await apiRequest.post('/email/forgot-password', {
-                    email:email
-                  })
-                  toast.success('Email sent successfully!')
-                  } catch (error) {
-                  toast.error('Invalid Email');
-                  }
-                  
-                }
+    try {
+      if (!email) {
+        toast.warning("Provide email", { autoClose: 2000 });
+        return;
+      }
+      await apiRequest.post("/email/forgot-password", {
+        email: email,
+      });
+      toast.success("Email sent successfully!");
+    } catch (error) {
+      toast.error("Invalid Email");
+    }
+  };
   const handleSubmitLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -39,21 +38,20 @@ const LoginPage = () => {
       });
 
       if (response && response.data.success) {
-        console.log("Login Successful:", response.data.user);
+        toast.success("Login Successful");
         dispatch(login(response.data.user));
         redirect("/user/chats");
       }
     } catch (error) {
-      toast.error('Invalid Email or Password');
+      toast.error("Invalid Email or Password");
     }
   };
 
   return (
     <div className="dark:bg-gray-900 bg-gray-100 h-screen flex items-center justify-center px-4 sm:px-6">
-      <RedirectArrow className="fixed left-4 top-4"/>
+      <RedirectArrow className="fixed left-4 top-4" />
 
       <div className="w-full max-w-sm sm:max-w-md md:max-w-lg flex flex-col gap-6 p-6 sm:p-8 rounded-2xl shadow-md bg-white dark:bg-gray-800 dark:text-white">
-        {/* Title */}
         <h1 className="text-2xl sm:text-3xl font-bold text-center">
           Log in to Chatter Bird
         </h1>
@@ -61,11 +59,9 @@ const LoginPage = () => {
           Welcome back! Sign in using your social account or email to continue.
         </p>
 
-        {/* Signup Options */}
         <div className="flex flex-col gap-4">
           <GoogleButton />
 
-          {/* Divider */}
           <div className="flex items-center w-full my-2">
             <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600"></div>
             <span className="px-3 text-gray-500 dark:text-gray-400 text-sm sm:text-base font-medium">
@@ -73,8 +69,6 @@ const LoginPage = () => {
             </span>
             <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600"></div>
           </div>
-
-          {/* Form */}
           <form className="flex flex-col gap-4" onSubmit={handleSubmitLogin}>
             <InputField
               required
@@ -97,16 +91,14 @@ const LoginPage = () => {
               <button className="bg-teal-700 text-white font-semibold py-2.5 px-4 rounded-lg w-full hover:bg-teal-800 dark:hover:bg-teal-600 transition-all duration-300 ease-in-out">
                 Log in
               </button>
-           
             </div>
           </form>
-             <button
-                
-                onClick={handleForgotClick}
-                className="text-teal-700 text-sm hover:underline dark:text-teal-500"
-              >
-                Forgot password?
-              </button>
+          <button
+            onClick={handleForgotClick}
+            className="text-teal-700 text-sm hover:underline dark:text-teal-500"
+          >
+            Forgot password?
+          </button>
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import apiRequest from "../utils/apiRequest";
 import { useSelector } from "react-redux";
 import type { RootState } from "../Redux/Store";
 import { format } from "timeago.js";
+import { toast } from "react-toastify";
 
 interface Loguser {
   _id: string;
@@ -32,11 +33,10 @@ const CallLogPage = () => {
       try {
         const res = await apiRequest.get("/call/get-all-logs");
         if (res.data && res.data.log) {
-          console.log(res.data.log);
           setLogs(res.data.log);
         }
       } catch (err) {
-        console.error("Error fetching logs:", err);
+        toast.error("Error fetching call logs");
       }
     };
     fetchLogs();

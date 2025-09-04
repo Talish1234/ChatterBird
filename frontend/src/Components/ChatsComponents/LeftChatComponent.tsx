@@ -9,6 +9,7 @@ import type { RootState } from "../../Redux/Store";
 import apiRequest from "../../utils/apiRequest";
 import LoadingSpinner from "../Loading/LoadingSpinner";
 import { spreadNotification } from "../../Redux/notificationStackSlice";
+import { toast } from "react-toastify";
 
 const LeftChatComponent = ({ className }: { className?: string }) => {
   const dispatch = useDispatch();
@@ -28,7 +29,7 @@ const LeftChatComponent = ({ className }: { className?: string }) => {
         setUsers(fetchedUsers);
 
       } catch (error) {
-        console.error("Error fetching users:", error);
+        toast.error("Something went wrong. Please try again later.");
       } finally {
         setIsLoading(false);
       }
@@ -53,7 +54,6 @@ useEffect(() => {
 
       dispatch(spreadNotification(arr));
     } catch (err) {
-      console.error("Error fetching notifications:", err);
     }
   };
 

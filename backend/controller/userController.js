@@ -6,7 +6,6 @@ export const getVerifiedUsers = async (req, res) => {
   try {
     const { q } = req.query;
     const userId = req.userId;
-    console.log(userId);
     const users = await User.find({ isVerified: true , _id: { $ne: userId }  }).select("-password -__v -isVerified -publicId").limit(100);
 
     if (!q) return res.status(200).json({success:true, users});
@@ -21,7 +20,6 @@ export const getVerifiedUsers = async (req, res) => {
 
     res.status(200).json({success:true, users:results});
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -58,7 +56,6 @@ export const updateUser = async (req, res) => {
         user.publicId = public_id;
         user.profilePicture = secure_url;
       } catch (cloudErr) {
-        console.error("Cloudinary upload failed:", cloudErr);
         return res.status(500).json({ message: "Image upload failed" });
       }
     }
@@ -74,7 +71,6 @@ export const updateUser = async (req, res) => {
       try {
         await cloudinary.uploader.destroy(oldPublicId);
       } catch (delErr) {
-        console.error("Failed to delete old image:", delErr);
       }
     }
 
@@ -89,7 +85,6 @@ export const updateUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error updating user:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

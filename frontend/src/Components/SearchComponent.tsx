@@ -31,9 +31,7 @@ const SearchComponent = () => {
         const res = await apiRequest.get(`/user?q=${debouncedSearch}`);
         const data = res.data;
         setResults(data.users || []);
-        console.log(data.users); // ✅ latest response
       } catch (error) {
-        console.error("Search error:", error);
         setResults([]);
       } finally {
         setLoading(false);
@@ -43,7 +41,6 @@ const SearchComponent = () => {
     fetchResults();
   }, [debouncedSearch]);
 
-  // Close search on ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") {

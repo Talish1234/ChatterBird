@@ -25,7 +25,6 @@ export const googleSignUpController = async (req, res) => {
     });
 
     const { email, name, picture, email_verified, at_hash } = ticket.getPayload();
-    console.log(email);
     
     let user = await User.findOne({ email });
     if (!user) {
@@ -45,13 +44,12 @@ export const googleSignUpController = async (req, res) => {
     });
     
     return res.cookie("chatter-token", token, {
-        sameSite: "None",
+        //sameSite: "None",
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 90,
     }).status(200).json({ success: true, user: { _id: user._id, email: user.email, name: user.name, profilePicture: user.profilePicture, bio:user.bio} });
   } catch (err) {
-    console.error("Google Auth Error:", err);
     return res.status(400).json({ success: false, error: err.message });
   }
 };
@@ -85,7 +83,6 @@ export const emailSignUpController = async (req, res) => {
     await sendVerificationEmail(email, html, "Action Required: Verify Your Email Address for Chatterbird");
     return res.status(200).json({ success: true, user: { _id: user._id , email: user.email, name: user.name, profilePicture: user.profilePicture, bio:user.bio } });
   } catch (err) {
-    console.error("Email Auth Error:", err);
     return res.status(400).json({ success: false, error: err.message });
   }
 };
@@ -113,14 +110,13 @@ export const emailLoginController = async (req, res) => {
         });
 
         return res.status(200).cookie("chatter-token", token, {
-            sameSite: "None",
+            //sameSite: "None",
             secure: process.env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: 1000 * 60 * 60 * 24 * 90,
         }).json({ success: true, user: { _id: user._id, email: user.email, name: user.name, profilePicture: user.profilePicture, bio:user.bio} });
 
     } catch (err) {
-        console.error("Email Auth Error:", err);
         return res.status(400).json({ success: false, error: err.message });
     }
 };
@@ -145,7 +141,6 @@ export const emailVerificationController = async (req, res) => {
 
     return res.status(200).send('<div style="text-align: center;"><h1 style="color: green; ">Email verified successfully</h1></div>');
   } catch (err) {
-    console.error("Email Verification Error:", err);
     return res.status(400).send('<div style="text-align: center;"><h1 style="color: red; ">Email verification failed</h1></div>');
   }
 };
@@ -164,7 +159,6 @@ export const forgetPasswordController = async (req, res) => {
         res.json({message:'password is sended'});
 
     } catch (err) {
-    console.error("Email Verification Error:", err);
     return res.status(400).json({success:false, message:err.message});
   }
 };

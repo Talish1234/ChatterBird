@@ -25,7 +25,6 @@ const RightChatComponent = ({ className }: { className?: string }) => {
         const foundUser = await apiRequest.get(`/user/${selectedUser}`);
         setUser(foundUser.data.user);
       } catch (err) {
-        console.error(err);
         setError("Failed to load user. Please try again.");
       }
       setIsLoading(false);

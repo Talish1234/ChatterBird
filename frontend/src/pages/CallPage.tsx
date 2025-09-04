@@ -10,8 +10,8 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { MdCallEnd } from "react-icons/md";
-import { CiVideoOn } from "react-icons/ci";
-import { IoMicOutline } from "react-icons/io5";
+import { CiVideoOff, CiVideoOn } from "react-icons/ci";
+import { IoMicOffOutline, IoMicOutline } from "react-icons/io5";
 import apiRequest from "../utils/apiRequest";
 
 const CallPage = () => {
@@ -22,7 +22,8 @@ const CallPage = () => {
   const [searchParams] = useSearchParams();
   const callType = searchParams.get("call-type");
   const authUser = useSelector((state: RootState) => state.authUser.user);
-
+  const [isCameraOn,setIsCameraOn] = useState<boolean>(true);
+  const [isMicOn,setIsMicOn] = useState<boolean>(true);
   const [authStream, setAuthStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [remoteSocketId, setRemoteSocketId] = useState<string | null>(null);
@@ -56,7 +57,6 @@ const CallPage = () => {
     }
   }, [remoteUserId]);
 
-  // Incoming call (callee side)
   const handleIncommingCall = useCallback(
     async ({
       from,
@@ -77,33 +77,26 @@ const CallPage = () => {
         peer.peer.addTrack(track, stream);
       });
 
-      console.log("Incoming Call from:", from);
-
       const ans = await peer.getAnswer(offer);
       socket.emit("call-accepted", { to: from, ans });
     },
     []
   );
 
-  // Call accepted (caller side receives answer)
   const handleAcceptedCall = useCallback(
     async ({ from, ans }: { from: string; ans: RTCSessionDescriptionInit }) => {
-      console.log("Call accepted by:", from);
       await peer.setRemoteDescription(ans);
     },
     []
   );
 
-  // Handle remote track
   useEffect(() => {
     peer.peer.addEventListener("track", (ev) => {
       const [stream] = ev.streams;
-      console.log("Received Remote Stream");
       setRemoteStream(stream);
     });
   }, []);
 
-  // ICE candidates
   useEffect(() => {
     peer.peer.onicecandidate = (event) => {
       if (event.candidate && remoteSocketId) {
@@ -117,9 +110,7 @@ const CallPage = () => {
     socket.on("ice-candidate", async ({ candidate }) => {
       try {
         await peer.peer.addIceCandidate(candidate);
-      } catch (err) {
-        console.error("Error adding received ice candidate", err);
-      }
+      } catch (err) {}
     });
 
     return () => {
@@ -127,29 +118,26 @@ const CallPage = () => {
     };
   }, [remoteSocketId]);
 
-  // Toggle camera
   const toggleCamera = useCallback(() => {
     if (authStream) {
       const videoTrack = authStream.getVideoTracks()[0];
       if (videoTrack) {
+        setIsCameraOn((prev => !prev));
         videoTrack.enabled = !videoTrack.enabled;
-        console.log("Camera:", videoTrack.enabled);
       }
     }
   }, [authStream]);
 
-  // Toggle mic
   const toggleMic = useCallback(() => {
     if (authStream) {
       const audioTrack = authStream.getAudioTracks()[0];
       if (audioTrack) {
+        setIsMicOn( prev => !prev);
         audioTrack.enabled = !audioTrack.enabled;
-        console.log("Mic:", audioTrack.enabled);
       }
     }
   }, [authStream]);
 
-  // End call
   const endCall = useCallback(() => {
     socket.emit("call-ended", { to: remoteUserId });
 
@@ -164,13 +152,31 @@ const CallPage = () => {
     // fresh peer
     peer.peer = new RTCPeerConnection({
       iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
         {
-          urls: "turn:openrelay.metered.ca:80",
-          username: "openrelayproject",
-          credential: "openrelayproject",
+          urls: "turn:numb.viagenie.ca",
+          credential: "muazkh",
+          username: "webrtc@live.com",
         },
         {
-          urls: "stun:openrelay.metered.ca:80",
+          urls: "turn:192.158.29.39:3478?transport=udp",
+          credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+          username: "28224511:1379330808",
+        },
+        {
+          urls: "turn:192.158.29.39:3478?transport=tcp",
+          credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+          username: "28224511:1379330808",
+        },
+        {
+          urls: "turn:turn.bistri.com:80",
+          credential: "homeo",
+          username: "homeo",
+        },
+        {
+          urls: "turn:turn.anyfirewall.com:443?transport=tcp",
+          credential: "webrtc",
+          username: "webrtc",
         },
       ],
     });
@@ -195,8 +201,6 @@ const CallPage = () => {
   // Handle remote end call
   useEffect(() => {
     const handleCallEnded = () => {
-      console.log("Call ended by remote user");
-
       if (authStream) {
         authStream.getTracks().forEach((track) => track.stop());
         setAuthStream(null);
@@ -208,13 +212,31 @@ const CallPage = () => {
 
       peer.peer = new RTCPeerConnection({
         iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
           {
-            urls: "turn:openrelay.metered.ca:80",
-            username: "openrelayproject",
-            credential: "openrelayproject",
+            urls: "turn:numb.viagenie.ca",
+            credential: "muazkh",
+            username: "webrtc@live.com",
           },
           {
-            urls: "stun:openrelay.metered.ca:80",
+            urls: "turn:192.158.29.39:3478?transport=udp",
+            credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+            username: "28224511:1379330808",
+          },
+          {
+            urls: "turn:192.158.29.39:3478?transport=tcp",
+            credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+            username: "28224511:1379330808",
+          },
+          {
+            urls: "turn:turn.bistri.com:80",
+            credential: "homeo",
+            username: "homeo",
+          },
+          {
+            urls: "turn:turn.anyfirewall.com:443?transport=tcp",
+            credential: "webrtc",
+            username: "webrtc",
           },
         ],
       });
@@ -250,7 +272,6 @@ const CallPage = () => {
     } else {
       socket.emit("start-connecting", { to: remoteUserId });
     }
-    console.log(callType);
   }, []);
 
   const handleStartConnection = async ({ from }: { from: string }) => {
@@ -269,9 +290,13 @@ const CallPage = () => {
     };
   }, [handleIncommingCall, handleAcceptedCall]);
 
-  if (!remoteUserId) return <></>;
+  if (!remoteUserId)
+    return (
+      <div className="bg-white dark:bg-gray-900 w-full h-screen flex items-center justify-center text-3xl text-gray-900 dark:text-white">
+        User not found!
+      </div>
+    );
 
-  // Helper to check if remote has active video
   const hasRemoteVideo =
     remoteStream &&
     remoteStream
@@ -280,7 +305,6 @@ const CallPage = () => {
 
   return (
     <div className="w-[100vw] min-h-screen flex items-center dark:bg-gray-800 bg-white transition-colors duration-300 pb-16 md:pb-0">
-      {/* Remote profile when audio-only */}
       {!hasRemoteVideo && (
         <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40">
           <img
@@ -291,15 +315,13 @@ const CallPage = () => {
         </div>
       )}
 
-      {/* Video container */}
       <div className="w-full h-full relative bg-transparent">
-        {/* Local */}
         {authStream && (
           <video
             autoPlay
             playsInline
             muted
-            className="w-20 aspect-[9/16]  md:aspect-video md:w-60 rounded-lg border border-amber-50 object-cover absolute bottom-16 right-2 md:bottom-8 md:right-8"
+            className="w-20 aspect-[9/16]  md:aspect-video md:w-60 rounded-lg border border-amber-50 object-cover absolute bottom-32 right-2 md:bottom-8 md:right-8"
             ref={(videoEl) => {
               if (videoEl && authStream) {
                 videoEl.srcObject = authStream;
@@ -308,7 +330,6 @@ const CallPage = () => {
           />
         )}
 
-        {/* Remote (only if video track active) */}
         {hasRemoteVideo && (
           <video
             autoPlay
@@ -323,19 +344,19 @@ const CallPage = () => {
         )}
       </div>
 
-      {/* Controls */}
       <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 md:bottom-6 flex justify-center gap-6 dark:bg-gray-900 bg-white rounded-full shadow-lg px-6 py-3">
         <button
           onClick={toggleCamera}
-          className="p-3 bg-gray-500 hover:bg-gray-600 text-white rounded-full transition"
+          className={`p-3 ${isCameraOn?'bg-gray-500 hover:bg-gray-600':'bg-red-600 hover:bg-red-700'} text-white rounded-full transition`}
         >
-          <CiVideoOn size={22} />
+          {isCameraOn?<CiVideoOn size={22} />:<CiVideoOff size={22} />}
         </button>
         <button
           onClick={toggleMic}
-          className="p-3 bg-gray-500 hover:bg-gray-600 text-white rounded-full transition"
+          className={`p-3 ${isMicOn?'bg-gray-500 hover:bg-gray-600':'bg-red-600 hover:bg-red-700'} text-white rounded-full transition`}
         >
-          <IoMicOutline size={22} />
+          {isMicOn?<IoMicOutline size={22} />:<IoMicOffOutline size={22} />}
+
         </button>
         <button
           onClick={endCall}

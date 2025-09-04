@@ -6,7 +6,6 @@ type NotificationsCardProps = {
 };
 
 const NotificationsCard = ({ userId, profilePicture, name, text }: NotificationsCardProps) => {
-  console.log(userId);
   return (
     <div className="flex items-center p-2">
       <img src={profilePicture} alt={name} className="w-10 h-10 rounded-full" />

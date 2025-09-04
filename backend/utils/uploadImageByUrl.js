@@ -15,7 +15,6 @@ export const uploadImageByUrl = async (imageUrl) => {
       publicId: data.public_id,      
     };
   } catch (err) {
-    console.error("Cloudinary Upload Error:", err.message);
     throw err;
   }
 };

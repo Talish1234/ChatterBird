@@ -6,6 +6,7 @@ import type {CodeResponse} from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../Redux/authSlice";
+import { toast } from "react-toastify";
 const GoogleButton = () => {
   const redirect = useNavigate();
   const dispatch = useDispatch();
@@ -15,10 +16,11 @@ const GoogleButton = () => {
       code: codeResponse.code,
     });
     if (response.data && response.data.success) {
+      toast.success('Login successfully');
       dispatch(login(response.data.user));
       redirect('/user/chats');
     } else {
-      console.error("Error signing up:", response);
+      toast.error("Something went wrong. Please try again later.");
     }
   };
 

@@ -12,11 +12,10 @@ export const openChat = async (req, res) => {
     }
 
     receiverId = new mongoose.Types.ObjectId(receiverId);
-    console.log(receiverId, userId);
     const participants = [userId, receiverId].sort();
 
     let chat = await Chat.findOne({ participants });
-    console.log(chat);
+
     if (!chat) {
       chat = await Chat.create({ participants });
       return res
@@ -39,7 +38,6 @@ export const openChat = async (req, res) => {
       messages: messages.reverse(),
     });
   } catch (error) {
-    console.error(error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
@@ -101,7 +99,6 @@ export const getUnreadCounts = async (req, res) => {
 
     return res.status(200).json({ success: true, UnreadCounts });
   } catch (error) {
-    console.error(error);
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
