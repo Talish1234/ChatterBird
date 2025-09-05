@@ -51,6 +51,7 @@ const App = () => {
             <Route path="call/:remoteUserId" element={<CallPage />} />
           </Route>
           <Route path="forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="preview.png" element={<img src="logo.svg" />} />
           <Route path="*" element={<h1 className="text-center">{"Page Not Found :("}</h1>} />
         </Routes>
       </MotionComponent>

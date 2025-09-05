@@ -31,7 +31,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="dark:bg-gray-900 bg-gray-100 w-full min-h-screen flex items-center justify-center px-4 sm:px-6 py-6">
+    <div className="dark:bg-gray-900 bg-gray-100 w-full min-h-screen overflow-y-scroll flex items-center justify-center px-4 sm:px-6 md:pb-0 py-6 pb-24">
       <EditProfileModal
         user={user}
         isOpen={isOpen}
