@@ -4,6 +4,7 @@ import { useState } from "react";
 import RedirectArrow from "../Components/RedirectArrow";
 import apiRequest from "../utils/apiRequest";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SignupPage = () => {
   const redirect = useNavigate();
@@ -34,6 +35,7 @@ const SignupPage = () => {
       });
 
       if (response) {
+        toast.success('Verification Email Sent Successfully')
         redirect("/login");
       }
     } catch (error) {

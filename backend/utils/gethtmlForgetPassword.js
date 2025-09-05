@@ -4,7 +4,7 @@ const gethtmlForgetPassword = (token) => {
 
   return (`<div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
   <div style="text-align: center; margin-bottom: 20px;">
-    <img src="https://example.com/chatterbird-logo.png" alt="Chatterbird Logo" style="width: 150px;">
+    <img src="https://res.cloudinary.com/dwvvhxbgy/image/upload/v1757094810/Screenshot_2025-09-05_150131_gxr4fi.png" alt="Chatterbird Logo" style="width: 150px;">
   </div>
   <h2 style="color: #333; text-align: center;">Reset Your Password</h2>
   
