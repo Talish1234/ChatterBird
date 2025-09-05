@@ -33,7 +33,7 @@ const SignupPage = () => {
         password: signupFormData.password,
       });
 
-      if (response?.data.success) {
+      if (response) {
         redirect("/login");
       }
     } catch (error) {
@@ -71,7 +71,7 @@ const SignupPage = () => {
             onChangeInputField={(e) =>
               setSignupFormData({ ...signupFormData, name: e.target.value })
             }
-            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500"
+            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500  dark:text-amber-50"
           />
           <InputField
             required
@@ -81,7 +81,7 @@ const SignupPage = () => {
             onChangeInputField={(e) =>
               setSignupFormData({ ...signupFormData, email: e.target.value })
             }
-            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500"
+            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500 dark:text-amber-50"
           />
           <InputField
             required
@@ -91,7 +91,7 @@ const SignupPage = () => {
             onChangeInputField={(e) =>
               setSignupFormData({ ...signupFormData, password: e.target.value })
             }
-            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500"
+            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500 dark:text-amber-50"
           />
           <InputField
             required
@@ -104,7 +104,7 @@ const SignupPage = () => {
                 confirmPassword: e.target.value,
               })
             }
-            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500"
+            className="border-b-2 border-gray-300 dark:border-gray-600 focus:border-teal-500 dark:text-amber-50"
           />
           <div className="text-center py-2">
             <button className="bg-teal-600 text-white font-bold py-2 px-4 rounded-lg w-full hover:bg-teal-700 transition-all duration-300 ease-in-out">
