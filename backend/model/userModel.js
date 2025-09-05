@@ -30,11 +30,7 @@ const userSchema = new mongoose.Schema({
     },
     publicId: {
       type:String  
-    },
-    chats: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Chat"
-    }]
+    }
 });
 
 const User = mongoose.model('User', userSchema);
