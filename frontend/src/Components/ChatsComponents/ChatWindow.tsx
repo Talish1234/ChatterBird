@@ -61,11 +61,7 @@ const ChatWindow = ({
     };
   }, [authUser, user._id]);
 
-  useEffect(() => {
-    return () => {
-      dispatch(setSelectedUser(null));
-    };
-  }, []);
+
   useEffect(() => {
     const fetchChat = async () => {
       setIsLoading(true);

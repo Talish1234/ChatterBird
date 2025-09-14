@@ -1,13 +1,23 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import LeftChatComponent from "../Components/ChatsComponents/LeftChatComponent";
 import RightChatComponent from "../Components/ChatsComponents/RightChatComponent";
 import type { RootState } from "../Redux/Store";
 import Loading from "../Components/Loading/Loading";
+import { useEffect } from "react";
+import { setSelectedUser } from "../Redux/selectedUserSlices";
 
 const ChatsPage = () => {
+  const dispatch = useDispatch();
   const selectedUser = useSelector(
     (state: RootState) => state.selectedUser.value
   );
+
+    useEffect(() => {
+      return () => {
+        dispatch(setSelectedUser(null));
+      };
+    }, []);
+
   return (
     <div className="flex w-full h-full">
       <LeftChatComponent
